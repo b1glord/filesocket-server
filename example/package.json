@@ -8,5 +8,10 @@
   },
   "repository": "",
   "author": "",
-  "license": "BSD"
+  "license": "BSD",
+  "dependencies": {
+    "mkee": "0.0.0",
+    "send": "~0.1.0",
+    "filesocket-client": "0.0.0"
+  }
 }
