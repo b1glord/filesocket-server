@@ -11,6 +11,6 @@ var server = http.createServer(function(req, res){
     .pipe(res)
 })
 
-fss.bind(server)
+fss.bind({server: server})
 
 server.listen(8000)

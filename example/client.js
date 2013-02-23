@@ -7,12 +7,16 @@ client.on('connect', function(){
 })
 
 client.on('dir', function(dirname, stats){
-  console.log(arguments)
+  for(var file in stats){
+    client.requestFile(dirname + file)
+  }
 })
 
 client.on('file', function(filename, stat, stream){
-  console.log(arguments)
-  stream.on('data', function(data){console.log(new DataView(data))})
+  stream.on('data', function(data){
+    var str = String.fromCharCode.apply(null, new Uint8Array(data));
+    console.log(filename, str)
+  })
   stream.on('end', function(){console.log('EOF')})
 })
 
