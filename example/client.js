@@ -14,10 +14,14 @@ client.on('dir', function(dirname, stats){
 
 client.on('file', function(filename, stat, stream){
   stream.on('data', function(data){
-    var str = String.fromCharCode.apply(null, new Uint8Array(data));
-    console.log(filename, str)
+    console.log(filename, ab2str(data))
   })
   stream.on('end', function(){console.log('EOF')})
 })
 
 window.client = client
+
+//http://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}

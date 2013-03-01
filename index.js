@@ -13,14 +13,14 @@ var S   = 1
 , FILE  = S++
 
 function FileSocketServer(options){
-  var wss, handler
+  var wss
   if(!options.root) throw new Error("Must specify a root directory")
   return {bind: bind}
 
   function bind(connection){
     wss = new WebSocketServer(connection)
     wss.on('connection', function(sock){
-      handler = dataHandler(options, sock)
+      var handler = dataHandler(options, sock)
       sock.on('message', function(msg){
         handler(msgpack.decode(msg))
       })
@@ -38,9 +38,9 @@ function dataHandler(options, sock){
       var id = msg.id
       if(type == DIR){
         var pathname = path.normalize('/' + msg.path)
-        statDir(path.join(root, pathname), function(err, stat){
+        statDir(path.join(root, pathname), function(err, stats){
           if(err) return send({id:id, error:err.message})
-          send({id:id, stat:stat})
+          send({id:id, stats:stats})
         })
       } else if(type == FILE){
         var pathname = path.normalize('/' + msg.path)
@@ -48,12 +48,12 @@ function dataHandler(options, sock){
         fs.stat(filepath, function(err, stat){
           if(err) return send({id:id, error:err.message})
           send({id:id, stat:stat})
-          var stream = fs.createReadStream(filepath)
+          var stream = fs.createReadStream(filepath, msg.options)
           stream.on('data', function(data){
             send({id:id, data:data})
           })
           stream.on('error', function(err){
-            send({id:id, error:err})
+            send({id:id, error:err.message})
           })
           stream.on('end', function(data){
             send({id:id, data:data, eof:true})
@@ -62,7 +62,6 @@ function dataHandler(options, sock){
       }
     })
   }
-
 
   function send(obj){
     sock.send(msgpack.encode(obj), {binary: true})
